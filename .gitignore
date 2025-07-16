@@ -165,7 +165,6 @@ visualizations/
 *.avi
 *.png
 tf/*
-visualize_run.py
 .DS_Store
 evaluation_logs/*
 *.h5

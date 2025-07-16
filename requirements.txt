@@ -1,0 +1,11 @@
+numpy
+numba
+pettingzoo
+gym
+pandas
+matplotlib
+jsonlines
+opencv-python
+tensorflow
+tensorflow-probability
+tf_keras

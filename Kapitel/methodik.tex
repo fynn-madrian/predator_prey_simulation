@@ -1,0 +1,136 @@
+\chapter{Single-Agenten Methodik}
+\label{chap:methodology}
+Da die folgenden Versuche alle mit der gleichen Grundmethodik arbeiten, werden alle Gemeinsamkeiten in diesem Kapitel erläutert. Einzelne Details zu den jeweiligen Versuchen folgen in den Methodikabschnitten in Kapitel~\ref{chap:single-tasks}.
+
+\section{Environment}
+
+Die simulierte Umgebung ist modular aufgebaut und stellt eine vereinfachte Überlebenssituation dar, in der unterschiedliche Komponenten je nach Szenario flexibel kombiniert werden können. Die Grundlage bildet eine rechteckige Karte mit kontinuierlich definierten Positionen. Zu den modularen Komponenten zählen rechteckige Nahrungsfelder, welche Nahrungsquellen repräsentieren und von Beute-Agenten genutzt werden können. Diese Felder regenerieren sich langsam bis zu einem festgelegten Maximalwert, wenn sie nicht vollständig geleert wurden. Optional kann ein Fluss als unpassierbare Barriere eingebunden werden, der sowohl Sichtlinien als auch Bewegungswege der Agenten einschränkt. Zusätzlich erhöhen kleine, kreisförmige Hindernisse in Form von Steinen die Navigationskomplexität innerhalb der Umgebung.
+
+Zur Steigerung des Überlebensdrucks existiert außerdem ein Jäger-Agent, der deterministisch nach einer festgelegten Logik handelt. Er verfolgt Beute-Agenten direkt, sofern keine Hindernisse im Weg sind. Sollte die direkte Route blockiert sein, verwendet er den A*-Algorithmus, um heuristisch den kürzesten alternativen Pfad zu finden. Die Geschwindigkeit des Jägers ist bewusst geringer als die der Beute-Agenten, wodurch den Beute-Agenten eine realistische Chance auf Überleben geboten wird. Diese modulare Struktur erlaubt es, Szenarien individuell zu konfigurieren und gezielt unterschiedliche Herausforderungen für die Agenten zu erzeugen.
+
+\section{Observation Space}
+Agenten erhalten als Input aus dem Environment drei Kategorien an Inputs. Daten über den eigenen Zustand wie Position, Blickrichtung sowie aktuelle Geschwindigkeit, welche jeweils normalisiert dargestellt werden.
+\[
+\Bigl[ \,
+  \text{ Position }[x,y],\,
+  \text{ Blickrichtung }[x,y],\,
+  \text{ Geschwindigkeit }[x,y],\,
+\Bigr]
+\]
+Ebenfalls erhalten sie konkrete Informationen über Objekte und Agenten in ihrem Sichtfeld. Hierzu werden in ihrem Sichtfeld Strahlen erzeugt, welche auf Kollisionen prüfen. Der Agent erhält so Winkel, normierte Distanz und Art des Objekts, mit dem der Strahl kollidiert ist, kodiert in One-Hot. Diese Kollisionsarten beinhalten den Rand der Karte, Steine, Flüsse, Jäger-Agenten, sowie Felder und  keine Kollision. Um die Erkennung von Jäger-Agenten zu vereinfachen, wurde für die Strahlenkollision ein Radius um den Agenten weiterhin als Treffer gezählt, auch wenn der Strahl den Agenten nicht direkt getroffen hat. Ist das Objekt ein Feld, wird ebenfalls in Prozent übergeben, wie viel Essen auf dem Feld verfügbar ist. Das Sichtfeld des Beute-Agenten beträgt 180 Grad, während die Länge auf 35 Einheiten (35 Prozent der Kantenlänge der Karte) und die Menge auf 15 Strahlen begrenzt ist. Die folgende Graphik zeigt eine Abbildung der Strahlen, während im Rest der Arbeit für bessere Visualisierung eine vereinfachte Darstellung verwendet wird. 
+\begin{figure}[h]
+  \centering
+  \adjincludegraphics[
+     width=0.7\linewidth,
+     Clip={0 {0\height} 0 {0.08\height}} 
+  ]{Bilder/ray_visual.png}
+  \caption{Strahlensensorik}
+  \label{fig:ray-observation}
+\end{figure}
+\newline
+Wie in Abbildung~\ref{fig:ray-observation} zu sehen ist, läuft Strahl 1 hier ins leere, und zeigt somit mit maximaler Distanz die in Tabelle~\ref{tab:strahlkomponenten} gezeigte Kodierung „Kein Treffer“. Strahl 2 wiederum trifft bei circa 80 Prozent der Sichtweite auf einen Stein, und kodiert diesen dementsprechend. Im linken Sichtbereich des Agenten befindet sich ein Feld, welches 90 Prozent der Maximalkapazität an Futter enthält. Dieses wird von Strahl 3 mit einer relativen Distanz von circa 0.4 kodiert. Zusätzlich zur Art und Distanz des Objektes wird auch die Richtung kodiert, indem für jeden Strahl die Sinus- und Kosinus-Werte des Winkels relativ zur Blickrichtung des Agenten übergeben werden. Diese Kodierung der Richtung mittels Sinus- und Kosinus-Werten ermöglicht eine kontinuierliche und eindeutige Repräsentation der Winkel, die keine diskreten Sprünge oder Grenzwertprobleme aufweist. Dadurch wird eine stabile und konsistente Verarbeitung durch neuronale Netze gewährleistet, was wiederum zu besseren Generalisierungs- und Lernfähigkeiten beiträgt.
+\begin{table}[htbp]
+\centering
+\caption{Komponenten und Werte für verschiedene Strahlen}
+\label{tab:strahlkomponenten}
+\begin{tabular}{llll}
+\toprule
+\textbf{Komponente}        & \textbf{Strahl 1} & \textbf{Strahl 2} & \textbf{Strahl 3}\\
+\midrule
+Distanz                    & 1.0               & 0.8 & 0.4 \\
+sin $\theta$               & $\approx0.90$    & 0   & 1   \\
+cos $\theta$               & $\approx0.43$    & 1   & 0   \\
+\midrule
+\multicolumn{4}{l}{\textbf{One-Hot-Kodierung}}\\
+kein Treffer & 1 & 0 & 0\\
+Kartenrand      & 0 & 0 & 0\\
+Jäger           & 0 & 0 & 0\\
+Fluss           & 0 & 0 & 0\\
+Stein           & 0 & 1 & 0\\
+Feld            & 0 & 0 & 1\\
+\midrule
+Feldfüllstand & 0.0 & 0.0 & 0.9\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Die letzte Kategorie an Inputs bilden zwei Supportvektoren. Diese beinhalten jeweils einen Richtungsvektor sowie eine normierte Distanz. Diese Supportvektoren wurden je nach Trainingsszenario angepasst und kodieren unterschiedliche Informationen, welche im weiteren Verlauf weiter besprochen werden.
+\[
+\bigl[\,
+    \text{ Support-Vektor 1 }[x,y],\,
+    \text{ Distanz 1},\,
+    \text{ Support-Vektor 2 }[x,y],\,
+    \text{ Distanz 2}
+\bigr]
+\]
+
+  
+\section{Action Space}
+Aufgrund der in Kapitel~\ref{chap:explorative} geschilderten Probleme im Umgang mit konkreten Bewegungsvektoren wurde eine alternative Action-Space-Architektur implementiert. Diese orientiert sich an dem in \cite{baker2020emergenttoolusemultiagent} beschriebenen Ansatz, bei dem Agenten über diskrete Aktionsentscheidungen kontinuierliche Bewegungen steuern.
+
+Die Agenten wählen aus jeweils fünf Aktionen in X- und Y-Richtung sowie drei Aktionen entlang der Z-Achse. In X- und Y-Richtung stehen dabei zwei Impulsstärken in beide Richtungen sowie ein neutraler Impuls zur Verfügung. Die Z-Achse beeinflusst die Rotationsgeschwindigkeit des Agenten, wobei Impulse nach links, rechts oder keine Rotation gesetzt werden können. Aus diesen diskreten Eingaben ergibt sich ein Bewegungsvektor, der über Zeit die Fortbewegung des Agenten bestimmt. Die Beschränkung des Aktionsraums auf eine überschaubare, diskrete Menge ermöglicht stabilere Policy-Updates, da der Agent nur zwischen klar definierten Bewegungsstufen wählen kann. Durch die gewählte Stärke der Impulse sind sowohl größere Schritte als auch kleine Anpassungen möglich. Diese Impulse wirken gemeinsam mit der aktuellen Geschwindigkeit und einer simulierten Reibung auf die Bewegung ein und bestimmen so die neue Position. Dieser Aufbau bietet einen simpleren Action Space, welcher trotzdem zu präzisen und kontinuierlichen Bewegungen führt. 
+
+
+\section{Netzwerk-Architektur}
+Die trainierten Modelle basieren auf einer Actor-Critic-Architektur und verarbeitet zeitliche Abhängigkeiten über ein zweischichtiges LSTM. Die Eingabewerte werden zunächst in eine Dense-Layer gegeben und durch eine Layer-Normalisierung stabilisiert. Anschließend durchlaufen diese normalisierten Vektoren ein LSTM, welches ebenfalls mit Layer-Normalisierung versehen ist. Dieser Output wird dann in 2 verschiedene Heads geteilt. Der Policy-Head und der Value-Head. Der Policy-Head besteht aus 2 weiteren Dense-Schichten, welche die Merkmale für die Aktionsverteilung aufbereiten. Jede der Aktionen erhält hier eine kategoriale Verteilung passend zu der Anzahl an Bins. Aus jeder dieser drei Verteilungen wird eine Aktion gezogen und die logarithmierte Wahrscheinlichkeit für das Policy-Gradient-Update gespeichert. Der Value-Head bereitet in 2 Dense-Schichten die Informationen auf und gibt einen erwarteten kumulierten Value zurück, welcher ebenfalls für das Policy-Gradient-Update dient. Die Aufteilung der Outputs dient der effizienteren Feature-Extraction und stellt sicher, das sich die Aufbereitung der Features auf relevante Abschnitte spezialisieren kann. Diese Kombination gewährleistet, dass das Modell einerseits informierte Aktionsentscheidungen trifft und andererseits zuverlässige Wertschätzungen für eine stabile Policy-Optimierung liefert. Die verwendete Anzahl an Neuronen per Schicht sind in Tabelle ~\ref{tab:neuronenanzahl} aufgelistet.
+
+\begin{table}[htbp]
+\centering
+\caption{Neuronenanzahl pro Schicht im Netzwerk}
+\label{tab:neuronenanzahl}
+\begin{tabular}{lc}
+\toprule
+Schicht & Neuronenanzahl \\
+\midrule
+Flat Input Dense & 32 \\
+Ray Input Dense & 128 \\
+Ray Dense & 96 \\
+LSTM & 256 \\
+Policy Head Dense & 64 \\
+Value Head Dense & 32 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Training}
+Das Training basiert auf dem in Kapitel~\ref{chap:theorie} beschriebenen PPO-Algorithmus. In jedem Simulationsschritt wählt der Agent eine Aktion auf Grundlage seiner aktuellen Beobachtung und des internen LSTM-Zustands. Beobachtung, Aktion, Log-Wahrscheinlichkeit, empfangener Reward sowie der geschätzte Value werden sequentiell im Episodenpuffer abgelegt. Sobald entweder die vordefinierte Sequenzlänge erreicht ist oder eine Terminationsbedingung (beispielsweise Ziel erreicht oder Agent gefressen) eintritt, wird die gesamte Episode gemeinsam mit dem zugehörigen initialen LSTM-Zustand in den Trainingspuffer überführt.
+
+Sobald der Trainingspuffer eine definierte Anzahl von Sequenzen enthält, wird dieser in Mini-batches unterteilt und das Modell durch diese aktualisiert. Dabei werden mehrere PPO-Updates durchgeführt, bei denen sowohl die Policy als auch der Value-Loss berücksichtigt werden. Zwischen den Updates wird der LSTM-Zustand mithilfe der gespeicherten Hidden States initialisiert, um den sequentiellen Kontext zu erhalten. Eine Episode endet für einen Agenten, wenn eine terminierende Bedingung erfüllt ist, zum Beispiel Erreichen des Ziels oder Überschreiten der maximalen Lebenszeit. Danach wird das Environment inklusive aller Agenten zurückgesetzt. Während des Trainings werden Metriken zur späteren Analyse aufgezeichnet, wie beispielsweise  der Gesamtloss, der separate Beitrag des Policy-Losses sowie des Value-Losses. Diese Kennzahlen geben Auskunft darüber, wie gut das Modell aktuelle Strategien und Wertfunktionen approximiert. Zusätzlich wird die mittlere Entropie überwacht, welche die Aktionsunsicherheit des Agenten misst und ein Indikator für das Erkundungsverhalten im Lernprozess ist. Die Gesamtnorm der Gradienten dient als Metrik zur Beurteilung der Trainingsdynamik und erlaubt Rückschlüsse auf die Stabilität und Intensität der Gewichtsaktualisierungen im Modell.
+
+Es wurde ebenfalls ein Learningrate-Scheduler sowie ein Entropy-Scheduler verwendet. Diese Verwenden einen Anfangs höheren Wert für die Lernrate sowie den Entropiekoeffizienten, um zu Beginn durch mehr Exploration und größere Lernschritte effizienter in eine grob Funktionierende Policy zu finden, welche im weiteren Verlauf mit kleineren Lernschritten verfeinert wird.
+
+\begin{table}[htbp] 
+    \centering
+    \caption{Trainingshyperparameter}
+    \label{tab:parameterwerte}
+    \begin{tabular}{@{}lcc@{}}
+        \toprule
+        Parameter & Symbol & Wert\\
+        \midrule
+        Diskontfaktor & \(\gamma\) & 0.99 \\
+        PPO-Clip & \(\epsilon\) & 0.1 \\
+        Learning Rate (Start)               & \(\alpha_{\mathrm{start}}\)  & \(1\times10^{-5}\)  \\
+        Learning Rate (Ende)                & \(\alpha_{\mathrm{min}}\)    & \(1\times10^{-6}\)  \\
+        Environment Steps                   & –                       & 5 000 000  \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+Das Training wurde mit verschiedenen Hyperparameter-Konfigurationen getestet, um stabilen Trainingsfortschritt sicherzustellen. Dabei zeigte sich, dass eine niedrige Lernrate sowie enges Clipping wesentlich für die Stabilität sind, da zu große Updates ansonsten Instabilitäten hervorrufen könnten. Tabelle~\ref{tab:parameterwerte} enthält die final verwendeten Hyperparameter, welche nach mehreren Iterationen im Training die stabilsten Ergebnisse lieferten.
+
+Die Tabelle~\ref{tab:data_handling} fasst weitere Parameter zusammen, die das Datenhandling betreffen. Verschiedene Varianten dieser Parameter wurden getestet, wobei die hier dargestellten Werte für das bestehende Environment sowie für die Modellstruktur die besten Trainingserfolge zeigten.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Datenhandling}
+  \label{tab:data_handling}
+  \begin{tabular}{ll}
+    \toprule
+    Parameter             & Wert     \\
+    \midrule
+    Batch-Größe           & 128       \\
+    PPO-Schritte pro Update & 3         \\
+    Buffer-Größe          & 512      \\
+    Sequenzlänge          & 128      \\
+    \bottomrule
+  \end{tabular}
+\end{table}

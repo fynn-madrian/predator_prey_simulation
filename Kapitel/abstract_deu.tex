@@ -1,0 +1,16 @@
+\vspace*{1cm}
+\addcontentsline{toc}{chapter}{Abstract}
+\begin{center}
+    \textbf{Abstract}
+\end{center}
+
+\vspace*{1cm}
+Diese Arbeit untersucht modulare Trainingsstrategien zur Verbesserung des Verhaltens von Reinforcement-Learning-Agenten in komplexen Überlebensszenarien. Ausgehend von instabilen Multi-Agent-Experimenten wird das Gesamtproblem für Single-Agenten in einzelne Aufgaben wie Navigation, Exploration und Flucht aufgeteilt. Diese Subtasks werden separat trainiert, feinjustiert und anschließend in ein vollumfängliches Survival-Szenario übertragen. Die Analyse zeigt, dass sowohl das Szenariodesign als auch die Wahl der Rewardfunktionen zentral für stabiles Lernen sind. Curriculum Learning durch schrittweise gesteigerte Komplexität fördert dabei robuste Strategien und ermöglicht eine effektivere Nutzung zuvor erlernter Fähigkeiten.
+
+Während vortrainierte Modelle vergleichbare Gesamtperformance zum Training-from-Scratch erreichen, behalten sie jeweils charakteristische Strategiemuster aus ihrem Subtask-Kontext bei – ein Effekt, der gezielt zur Steuerung spezifischer Verhaltensweisen genutzt werden kann. Eine anschließende Retention-Analyse bestätigt, dass einige Spezialfähigkeiten durch das Fine Tuning erhalten bleiben, während andere – insbesondere bei widersprüchlichen Zielen – verdrängt werden. Zusätzlich wird gezeigt, dass die Generalisierungsfähigkeit der Agenten stark von der Komplexität der Subtask-Umgebung abhängt: Modelle, die in strukturell anspruchsvollen Szenarien trainiert wurden, entwickelten robustere Taktiken und konnten diese besser auf neue Umgebungen übertragen.
+
+Die Evaluation erfolgt dabei nicht nur über aggregierte Rewards, sondern anhand spezifischer Metriken wie Zeit zum Ziel, Überlebensdauer und Erfolgsrate. Die Ergebnisse legen nahe, dass modulare Trainings- und Transferansätze einen vielversprechenden Weg darstellen, um Reinforcement Learning Modelle kontrollierbar und effizient für komplexe Multi-Ziel-Umgebungen vorzubereiten – und liefern zudem konkrete Hinweise für die Gestaltung zukünftiger Multi-Agent-Systeme und adaptiver Policy-Architekturen.
+
+ 
+
+\noindent 

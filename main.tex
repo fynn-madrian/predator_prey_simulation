@@ -1,0 +1,133 @@
+\documentclass[12pt,twoside=off,
+bibliography=totoc,listof=totoc,appendixprefix,paper=a4,headings=small]{scrbook}
+
+\usepackage[
+  paper=a4paper,
+  left=40mm,
+  right=25mm,
+  top=20mm,
+  bottom=20mm,
+  bindingoffset=0mm]{geometry}
+\setlength{\footskip}{15mm}
+\usepackage{mathptmx}
+\usepackage{float}
+\usepackage{graphicx,adjustbox} 
+\KOMAoptions{parskip=half}
+
+\renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
+
+\RedeclareSectionCommand[
+  beforeskip=1.5\baselineskip,
+  afterskip=0.5\baselineskip,
+  font=\fontsize{14}{16}\bfseries
+]{section}
+
+\RedeclareSectionCommand[
+  beforeskip=0.5\baselineskip,  
+  afterskip=0.5\baselineskip
+]{chapter}
+
+\usepackage{cite}            
+\usepackage{amsfonts} 
+\usepackage[utf8]{inputenc}         
+\usepackage{ngerman}				
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}				
+		
+\setkomafont{disposition}{\bfseries}
+\RedeclareSectionCommand[
+  beforeskip=1.5\baselineskip,
+  afterskip=0.5\baselineskip,
+  font=\fontsize{14}{16}\bfseries
+]{section}
+
+
+\usepackage{graphicx} 				
+\graphicspath{{./Bilder/}}          
+
+\usepackage{url}					
+\usepackage[colorlinks,linkcolor=black,citecolor=black,urlcolor=black]{hyperref} 	
+\usepackage{tabularx} 				
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+\usepackage[active]{srcltx}
+
+\usepackage{listings}		
+
+\usepackage{mdwlist}				
+
+\usepackage{setspace} 			
+\newtheorem{mydef}{Merksatz}  	
+\newtheorem{bsp}{Beispiel}
+		
+\usepackage{lscape}		
+\usepackage{amsmath}	
+\usepackage{calc}
+
+\usepackage{footnote}		
+\renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
+
+\usepackage{tablefootnote}			
+\usepackage{microtype}		
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{3pt}
+\makeatletter
+  % Abstand oberhalb eines Floats auf Float-Seiten (nur [t] oder reine Float-Seiten)
+  \setlength{\@fptop}{0pt}      
+  % Abstand unterhalb eines Floats auf Float-Seiten
+  \setlength{\@fpbot}{0pt}      
+  % Abstand zwischen zwei Floats auf Float-Seiten
+  \setlength{\@fpsep}{5pt}      
+\makeatother
+
+% optional: Abstand Text ↔ Float [t] oder [b] noch weiter reduzieren
+\setlength{\textfloatsep}{6pt plus 1pt minus 1pt}
+\hyphenation{voll-st\"andigen}		
+\setcounter{tocdepth}{1}		
+\begin{document}
+
+\frontmatter
+    \include{./Titel/titel} 			% Titelblatt
+    \input{./Kapitel/ehrenwörtliche_erkl} 	% Abstract auf Deutsch
+    \newpage
+    \input{./Kapitel/abstract_deu} 	% Abstract auf Deutsch
+    \newpage
+
+
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+    \onehalfspacing                  	% Zeilenabstand ab hier 1.5 zeilig
+    \tableofcontents 					% Inhaltsverzeichnis
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+
+    \listoffigures 					 	% Abbildungsverzeichnis
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+
+    \listoftables						% Tabellenverzeichnis
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+
+% -----------------------------------
+\mainmatter 							% die einzelnen Kapitel
+    \input{./Kapitel/einleitung}
+    \clearpage{\pagestyle{empty}\cleardoublepage}		% löscht Kopfzeilen und Seitennummerierung von der letzten Seite eines Kapitels, sofern dort kein Text mehr steht
+    \input{./Kapitel/Theorie}
+    \input{./Kapitel/vorversuch}
+    \input{./Kapitel/methodik}
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+    \input{./Kapitel/ergebnisse}
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+    \input{./Kapitel/fazit}
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+    \input{./Kapitel/ausblick}          
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+    \input{./Kapitel/appendix} 
+    \clearpage{\pagestyle{empty}\cleardoublepage}
+
+\backmatter
+\bibliographystyle{IEEEtran}     % IEEE-Standard
+\bibliography{./Literatur/quellen}		% Literaturquellen einbinden
+
+\end{document}

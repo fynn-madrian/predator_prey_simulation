@@ -1,0 +1,86 @@
+\appendix
+\label{chap:appendix}
+\chapter{Anhang (WORK IN PROGRESS)}
+
+\section{Quellcode}
+\label{app:code}
+
+Im zugehörigen GitHub-Repository finden sich sämtliche Skripte zur Simulation und zum Training der Agenten sowie eine ausführliche README mit Installations- und Anwendungshinweisen:
+
+\begin{itemize}
+  \item \href{https://github.com/fynn-madrian}{github.com/fynn-madrian}
+\end{itemize}
+
+\section{Zusätzliche Tabellen}
+\label{app:tables}
+
+Die folgenden Tabellen führen weitere Hyperparameter auf, die im Hauptteil nur kurz erwähnt wurden:
+
+\subsection{MARL Parameter}
+\begin{table}[htbp]
+  \centering
+  \caption{Modell- und Trainingshyperparameter}
+  \label{tab:marl_model_hyperparams}
+  \begin{tabular}{@{}lcl@{}}
+    \toprule
+    Parameter                         & Symbol            & Wert          \\
+    \midrule
+    Lernrate                          & $lr$              & $1\times10^{-3}$ \\
+    Batch-Größe                       & –                 & 32            \\
+    PPO-Schritte pro Update           & –                 & 4             \\
+    PPO-Clip-Epsilon                  & $\epsilon$        & 0,2           \\
+    Diskontfaktor                     & $\gamma$          & 0,95          \\
+    GAE-Faktor                        & $\lambda$         & 0,95          \\
+    Value-Koeffizient                 & $c_v$             & 0,5           \\
+    Entropie-Koeffizient              & $c_e$             & 0,01          \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\subsection{Single Agent Parameter}
+\begin{table}[htbp]
+  \centering
+  \caption{Netzwerarchitektur und Datenhandling}
+  \label{tab:network_architecture}
+  \begin{tabular}{ll}
+    \toprule
+    Parameter             & Wert     \\
+    \midrule
+    Batch-Größe           & 128       \\
+    PPO-Schritte pro Update & 3         \\
+    Buffer-Größe          & 512      \\
+    Sequenzlänge          & 128      \\
+    Dropout-Rate          & 0{,}1    \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{RL-Algorithmus und Trainingshyperparameter}
+  \label{tab:rl_hyperparams}
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    Parameter                            & Symbol                  & Wert       \\
+    \midrule
+    Diskontfaktor                        & \(\gamma\)              & 0,99       \\
+    GAE-Faktor                           & \(\lambda\)             & 0,95       \\
+    PPO-Clip                             & \(\epsilon\)            & 0,1        \\
+    Entropie-Koeff. (Start)             & \(\beta_{\mathrm{start}}\)   & 0,01       \\
+    Entropie-Koeff. (Ende)              & \(\beta_{\mathrm{min}}\)     & 0,001      \\
+    Learning Rate (Start)               & \(\alpha_{\mathrm{start}}\)  & \(1\times10^{-5}\)  \\
+    Learning Rate (Ende)                & \(\alpha_{\mathrm{min}}\)    & \(1\times10^{-6}\)  \\
+    Environment Steps                   & –                       & 5 000 000  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Animationsclips}
+\label{app:animations}
+
+Um die dynamischen Verhaltensweisen der trainierten Modelle zu illustrieren, wurden ausgewählte Durchläufe als Animationsclips exportiert. Die Videodateien sind im Repository unter dem Verzeichnis \texttt{/animations} abrufbar:
+
+\begin{itemize}
+\item Link to Gif
+\end{itemize}

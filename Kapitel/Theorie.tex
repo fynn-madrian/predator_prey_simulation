@@ -1,0 +1,128 @@
+\chapter{Theorie}
+\label{chap:theorie}
+\section{Reinforcement Learning: Grundlagen}
+
+Reinforcement Learning beschreibt einen Ansatz des maschinellen Lernens, bei dem ein Agent durch Interaktionen mit einer Umgebung und daraus erhaltenen Belohnungen lernt \cite{sutton2018reinforcement}. Dabei stößt RL typischerweise auf Herausforderungen wie instabile Lernupdates, ineffiziente Datennutzung und Unsicherheiten bezüglich zukünftiger Belohnungen. Um diese Probleme formal zu analysieren und Lösungsansätze zu entwickeln, wird das zugrunde liegende Lernproblem häufig als Markov-Entscheidungsprozess (MDP) modelliert. Ein MDP setzt sich aus fünf zentralen Komponenten zusammen\cite{sutton2018reinforcement}:
+\begin{center}
+$\bigl(\mathcal{S},\;\mathcal{A},\;P,\;R,\;\gamma\bigr)$,
+\end{center}
+
+\noindent
+wobei \(\mathcal{S}\) den Zustandsraum, \(\mathcal{A}\) den Aktionsraum,  
+\(P(s' \mid s,a)\) die Übergangsdynamik, \(R(s,a,s')\) die unmittelbare  
+Belohnungsfunktion und \(\gamma \in [0,1]\) den \emph{Diskontfaktor} beschreibt.  
+
+
+\subsubsection*{Zustandsraum}
+\vspace{-1em}
+Der Zustandsraum \(\mathcal{S}\) umfasst alle möglichen Konfigurationen \(s \in \mathcal{S}\), in denen sich der Agent befinden kann. Abgebildet werden hier nur die Informationen, die dem Agenten zur Entscheidungsfindung zur Verfügung stehen.
+
+\subsubsection*{Aktionsraum}
+\vspace{-1em}
+Der Aktionsraum \(\mathcal{A}\) beschreibt alle möglichen Handlungen \(a \in \mathcal{A}\), die ein Agent in einem Zustand \(s\) ausführen kann.
+
+\subsubsection*{Übergangsdynamik}
+\vspace{-1em}
+Die Zustandsdynamik ist durch die Wahrscheinlichkeitsverteilung
+\[
+P\bigl(s'\mid s,a\bigr)
+=P\bigl(S_{t+1}=s'\mid S_t=s,A_t=a\bigr)
+\]
+definiert. In deterministischen Umgebungen ist \(P(s' \mid s, a) = 1\) für
+exakt einen Folgezustand \(s'\) und null für alle anderen.
+Selbst wenn die Dynamik deterministisch ist, kann die
+Belohnungsfunktion \(R(s,a,s')\) weiterhin stochastisch verteilt sein, da Dynamik
+und Reward konzeptionell getrennt sind. Liegt jedoch nur eine partielle Beobachtbarkeit vor, erscheint der Übergang aus Agentensicht stochastisch, da relevante Anteile des Zustands unzugänglich sind. Ist \(S_t\) nur teilweise beobachtbar, spricht man formal von einem Partially Observable MDP (POMDP), dessen Analyse zusätzliche Hidden-State-Techniken erfordert
+
+\subsubsection*{Belohnungsfunktion}
+\vspace{-1em}
+Die Funktion
+\[
+R(s, a, s')
+\]
+ordnet jedem Zustandsübergang einen unmittelbaren Reward \(r \in \mathbb{R}\) zu. Häufig genügt auch die verkürzte Form \(R(s, a)\), falls der Reward nur vom Ausgangszustand und der Aktion abhängt.
+\subsubsection*{Diskontfaktor}
+\vspace{-0.8em}
+Der Diskontfaktor \(\gamma \in [0,1]\) legt fest, wie stark der Agent künftige
+Belohnungen gegenüber sofortigen gewichtet. Für die Ertragsformel gilt
+\[
+G_t \;=\; \sum_{k=0}^{\infty} \gamma^{k}\, r_{t+k+1}.
+\]
+Ein höherer \(\gamma\)-Wert ermöglicht es dem Agenten, langfristig zu planen. Ein Wert nahe 1 führt dazu, dass zukünftige Belohnungen fast genauso stark gewichtet werden wie unmittelbare. \(\gamma\) dagegen kleiner, konzentriert sich der Agent stärker auf kurzfristige Erfolge, da spätere Belohnungen schnell an Bedeutung verlieren.
+
+\subsubsection*{Markov Game (Multi-Agent RL)}
+\vspace{-1em}
+In Multi-Agent-Systemen erweitert sich das MDP-Modell zu einem Markov Game, bei dem der Zustandstransition auch von den Aktionen anderer Agenten abhängt. Da diese Handlungen während des Trainings ebenfalls nicht-stationär sind und nicht direkt beobachtet werden, modelliert ein Agent die Dynamik als gemischte Wahrscheinlichkeitsverteilung:
+\[
+\hat{P}(s' \mid s, a^i)
+=
+\sum_{a^{-i}} \pi^{-i}(a^{-i} \mid s)\; P(s' \mid s, a^i, a^{-i})
+\]
+Der einzelne Agent lernt somit nur eine Schätzung der effektiven Übergänge, da das Verhalten der Mitspieler nicht direkt kontrollierbar ist.
+\newpage
+\section{Actor-Critic-Method}
+Die Lösung eines MDP erfordert die Bestimmung einer Policy, die jedem Zustand eine möglichst vorteilhafte Aktion zuordnet. Eine mögliche Herangehensweise ist der direkte Policy‐Gradient, der jedoch häufig unter hoher Varianz leidet. Um dieses Problem zu mildern, teilt die Actor-Critic-Methode die Lernaufgabe in zwei Komponenten auf \cite{konda2000ActorCritic}: Der Actor parametrisiert die Policy \(\pi_{\theta}\) über den Parametervektor \(\theta\) und generiert Aktionen, während der Critic mittels einer Wertfunktion \(V_{\phi}\) mit Parametern \(\phi\) bewertet, wie gut bestimmte Zustände (beziehungsweise Zustand–Aktions–Paare) im Hinblick auf zukünftige Belohnungen sind.
+
+Die Aufgabe des Actors in diesem Algorithmus besteht darin, auf Grundlage der Policy die jeweils auszuführenden Aktionen zu bestimmen. Ziel des Lernprozesses ist es, die Policy so zu aktualisieren, dass die erwartete Belohnung maximiert wird. Während der Actor fortlaufend seine Strategie verfeinert und sich dem Environment anpasst, bewertet der Critic die gewählten Aktionen, schätzt deren Wert und liefert damit das Feedback für weitere Policy-Updates. In einem wechselseitigen Zyklus passt der Critic seine Value-Funktion anhand der beobachteten Belohnungen an. Auf dieser Grundlage erhöht der Actor gezielt die Wahrscheinlichkeit vorteilhafter Entscheidungen .
+
+\section{LSTM und PPO}
+In praktischen Anwendungen werden die Komponenten des Actor-Critic-Modells häufig durch neuronale Netze realisiert. Dabei ergeben sich besondere Herausforderungen, wenn der Agent nicht zu jedem Zeitpunkt vollständige Informationen über den Zustand des Environments erhält, etwa aufgrund von Beobachtungsrauschen oder begrenzter Sensorik. In solchen Fällen handelt es sich um ein partially observable (teilweise beobachtbares) System. Um in diesen Situationen dennoch fundierte Entscheidungen zu treffen, ist es hilfreich, vergangene Beobachtungen und Aktionen in die Entscheidungsfindung einzubeziehen. Rekurrente neuronale Netze, insbesondere Long Short-Term Memory (LSTM)-Modelle \cite{10.1162/neco.1997.9.8.1735}, ermöglichen genau dies, indem sie zeitliche Abhängigkeiten erfassen und relevante Informationen über längere Zeiträume hinweg speichern können. 
+
+Um die Policy-Updates stabil zu halten, wird hier der Proximal Policy Optimization (PPO) Algorithmus verwendet. Im Gegensatz zu klassischen Policy-Gradient-Methoden, bei denen die Policy direkt anhand des Gradienten der Ziel-Funktion angepasst wird, nutzt PPO eine sogenannte \emph{Clipped Surrogate Objective} \cite{schulman2017proximalpolicyoptimizationalgorithms}. Policy-Gradient-Methoden optimieren eine parametrische Policy, indem sie den Gradienten des erwarteten kumulierten Rewards berechnen – dies ermöglicht das Lernen auch in kontinuierlichen Aktionsräumen, kann jedoch zu instabilen Updates führen, wenn die Gradienten zu groß werden. Ziel von PPO ist es daher, die Änderung der Policy zwischen zwei Update-Schritten zu begrenzen, um Instabilität im Lernprozess zu vermeiden.
+
+Die zentrale Verlustfunktion von PPO lautet:
+\[
+L^{\mathrm{clip}}(\theta) = \mathbb{E}_t \left[ 
+\min \left( 
+r_t(\theta) \hat{A}_t^\lambda,\ 
+\mathrm{clip}\left( r_t(\theta), 1 - \epsilon,\ 1 + \epsilon \right) \hat{A}_t^\lambda
+\right) 
+\right]
+\]
+Dabei bezeichnet 
+\(
+r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}
+\)
+das Verhältnis der Aktionswahrscheinlichkeiten unter neuer und alter Policy, 
+\(
+\hat{A}_t^\lambda
+\)
+ist der geschätzte Vorteil (Advantage), und 
+\(
+\epsilon
+\)
+ein Hyperparameter zur Begrenzung der Policy-Änderung. Die Advantage $\hat{A}_t^\lambda $ wird hier mittels Generalized Advantage Estimation (GAE) berechnet \cite{schulman2018highdimensionalcontinuouscontrolusing}.
+
+Für die Berechnung des Verhältnisses \( r_t(\theta) \) ist es notwendig, die Wahrscheinlichkeit der gewählten Aktion unter der alten Policy zu kennen. Da sich das Modell nach jedem Update ändert, wird während der Interaktion mit der Umgebung für jede gewählte Aktion die Log-Wahrscheinlichkeit unter der aktuellen Policy berechnet und gespeichert. Diese dient später als Referenzpunkt für die PPO-Updates.Der Vorteil dieser Herangehensweise liegt darin, dass Log-Wahrscheinlichkeiten numerisch stabiler verarbeitet werden können, insbesondere im Vergleich zu direkten Wahrscheinlichkeiten, deren sehr kleine Werte zu numerischen Ungenauigkeiten führen können. 
+
+Die gespeicherte Log-Wahrscheinlichkeit \( \log \pi_{\theta_{\text{old}}}(a_t \mid s_t) \) wird in der Trainingsphase mit der aktuellen Log-Wahrscheinlichkeit unter \( \pi_{\theta} \) verglichen, um den Quotienten \( r_t(\theta) \) zu berechnen:
+\[
+r_t(\theta) = \exp\left( \log \pi_{\theta}(a_t \mid s_t) - \log \pi_{\theta_{\text{old}}}(a_t \mid s_t) \right)
+\]
+Dies erlaubt eine effiziente und stabile Implementierung des Clipping-Mechanismus.
+
+
+Das Clipping verhindert, dass Updates zu weit von der ursprünglichen Policy abweichen. Dies ist entscheidend, da zu große Updates dazu führen können, dass die Policy stark von derjenigen abweicht, unter der die Daten gesammelt wurden. In solchen Fällen wären auch die Advantage-Schätzungen inkorrekt – ein zentrales Problem, da der Agent dann auf Grundlage verzerrter Informationen weiterlernt. On-Policy-Verfahren sind besonders anfällig gegenüber schlechten Sample. Sobald die Policy sich stark verschlechtert, erzeugt der Agent neue Trajektorien unter dieser suboptimalen Strategie. Da ausschließlich aktuelle Daten verwendet werden, fehlt die Grundlage für sinnvolle Korrekturen, was den Lernprozess schnell in eine negative Rückkopplung führen kann. PPO begegnet diesem Problem mit einem einfachen, aber effektiven Mechanismus, der große Updates gezielt limitiert und so große Änderungen in der Policy verhindert. PPO erzielt durch stabile Updates und das mehrfache verwenden von Daten ebenfalls hohe sample-efficiency, da aus jeder Interaktion mit der Umgebung möglichst viel Lernsignal extrahiert werden kann.
+
+\subsubsection*{Entropie-Regularisierung}
+
+Beim Training einer Policy mit PPO besteht die Gefahr, dass das Modell bereits früh einige scheinbar vorteilhafte Aktionen bevorzugt und damit die Erkundung anderer Handlungsoptionen vernachlässigt.  
+Um dieser voreiligen Spezialisierung entgegenzuwirken, ergänzt man die PPO-Zielfunktion häufig um einen \emph{Entropie-Bonus}.  
+Dabei wird die im aktuellen Batch gemessene Aktionsentropie \(H_t\) mit einem zeitabhängigen Koeffizienten \(\beta_t\) gewichtet:
+
+\[
+L_{\text{total}}
+  \;=\;
+  L_{\text{policy}}
+  \;+\;
+  \tfrac12\,L_{\text{value}}
+  \;-\;
+  \beta_t \, H_t .
+\]
+
+\(H_t\) beschreibt, wie breit oder „ungewiss“ die Aktionsverteilung der Policy ist:  
+Hohe Werte bedeuten, dass das Modell sein Vertrauen auf mehrere mögliche Aktionen verteilt; niedrige Werte zeigen an, dass es sich nahezu auf eine einzige Aktion festlegt.  
+Der Koeffizient \(\beta_t\) steuert, \emph{wie stark} diese Zufälligkeit im Loss belohnt wird; ein Scheduler lässt ihn während des Lernprozesses von einem anfänglich hohen Wert auf einen kleineren Endwert absinken.  
+
+So wird zu Beginn ausgiebige Exploration gefördert, während die Policy später deterministischer werden darf, sobald genügend Erfahrung gesammelt wurde.  
+Der Entropie-Bonus ist keine zwingende Kernkomponente von PPO, hat sich aber in der Praxis als bewährte Erweiterung erwiesen, da er ein vorschnelles Verharren in lokalen Optima verhindert und in der Regel zu robuster und besser generalisierender Strategiefindung führt \cite{schulman2017proximalpolicyoptimizationalgorithms}. 

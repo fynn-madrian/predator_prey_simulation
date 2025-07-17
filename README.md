@@ -3,6 +3,11 @@
 Dieses Projekt simuliert ein dynamisches Predator-Prey-Szenario zur Untersuchung lernfähiger Agenten mit Hilfe von Reinforcement Learning. Die Agenten operieren in einer physikalisch plausiblen, 2D-Umgebung mit Hindernissen, Futterquellen und einem jagenden Gegenspieler. Die Lernarchitektur basiert auf PPO (Proximal Policy Optimization) mit LSTM zur Verarbeitung sequentieller Beobachtungen.
 
 Ziel ist es, die Lernfähigkeit und Generalisierbarkeit von Agentenverhalten in verschiedenen Subtasks wie Navigation, Flucht und Nahrungssuche zu analysieren.
+---
+## Performancebeispiele
+![](https://github.com/fynn-madrian/predator_prey_simulation/blob/single_agent/animated_runs/circle_field.gif)
+
+
 
 ---
 
@@ -42,8 +47,5 @@ Ziel ist es, die Lernfähigkeit und Generalisierbarkeit von Agentenverhalten in 
       Um die Performance eines Modelles zu evaluieren, kann der Pfad zum Modell in evaluate.py angegeben werden. Ebenfalls kann hier das zu testende Szenario konfiguriert werden. Als Output werden die gewünschten Metriken generiert und unter /evaluate_log die besten 5 Anläufe gespeichert.
        ```bash
       python evaluate.py
-
-
-
 
 

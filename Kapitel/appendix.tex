@@ -1,20 +1,22 @@
 \appendix
 \label{chap:appendix}
-\chapter{Anhang (WORK IN PROGRESS)}
+\chapter{Anhang}
 
 \section{Quellcode}
 \label{app:code}
 
-Im zugehörigen GitHub-Repository finden sich sämtliche Skripte zur Simulation und zum Training der Agenten sowie eine ausführliche README mit Installations- und Anwendungshinweisen:
+Im zugehörigen GitHub-Repository finden sich sämtliche Skripte zur Simulation und zum Training der Agenten sowie eine ausführliche README mit Installations- und Anwendungshinweisen. 
 
 \begin{itemize}
-  \item \href{https://github.com/fynn-madrian}{github.com/fynn-madrian}
+  \item Repository: \href{https://github.com/fynn-madrian/predator_prey_simulation}{github.com/fynn-madrian/predator\_prey\_simulation}
+  \item Branch single\_agent enthält den Code für das Taskspezifische Single-Agenten Training
+  \item Branch marl\_simulation enthält eine aufgearbeitete Version der Multiagenten Umgebung
 \end{itemize}
 
 \section{Zusätzliche Tabellen}
 \label{app:tables}
 
-Die folgenden Tabellen führen weitere Hyperparameter auf, die im Hauptteil nur kurz erwähnt wurden:
+Die folgenden Tabellen führen weitere verwendete Hyperparameter auf, die im Hauptteil nur kurz erwähnt wurden:
 
 \subsection{MARL Parameter}
 \begin{table}[htbp]
@@ -39,7 +41,7 @@ Die folgenden Tabellen führen weitere Hyperparameter auf, die im Hauptteil nur 
 
 
 \subsection{Single Agent Parameter}
-\begin{table}[htbp]
+\begin{table}[H]
   \centering
   \caption{Netzwerarchitektur und Datenhandling}
   \label{tab:network_architecture}
@@ -79,8 +81,11 @@ Die folgenden Tabellen führen weitere Hyperparameter auf, die im Hauptteil nur 
 \section{Animationsclips}
 \label{app:animations}
 
-Um die dynamischen Verhaltensweisen der trainierten Modelle zu illustrieren, wurden ausgewählte Durchläufe als Animationsclips exportiert. Die Videodateien sind im Repository unter dem Verzeichnis \texttt{/animations} abrufbar:
+Um die Verhaltensweisen der trainierten Modelle zu illustrieren, wurden ausgewählte Durchläufe als Animationsclips exportiert. Die Videodateien sind im Repository unter dem Verzeichnis \href{https://github.com/fynn-madrian/predator_prey_simulation/tree/single_agent/animated_runs}{\texttt{/animated\_runs}} abrufbar:
 
 \begin{itemize}
-\item Link to Gif
+\item \href{https://github.com/fynn-madrian/predator_prey_simulation/blob/single_agent/animated_runs/circle_field.gif}{\texttt{circle\_field}} zeigt einen Agenten, der ein Feldstück leert, und währenddessen dem Jäger ausweicht
+\item \href{https://github.com/fynn-madrian/predator_prey_simulation/blob/single_agent/animated_runs/flee_river.gif}{\texttt{flee\_river}} zeigt einen Agenten, der durch einen engen Kartenabschnitt läuft, um dem Jäger zu entkommen
+\item \href{https://github.com/fynn-madrian/predator_prey_simulation/blob/single_agent/animated_runs/flee_rocks.gif}{\texttt{flee\_rocks}} zeigt eine Fluchtumgebung mit großen Steinen
+\item \href{https://github.com/fynn-madrian/predator_prey_simulation/blob/single_agent/animated_runs/spinning_navigate.gif}{\texttt{spinning\_navigate}} zeigte einen Agenten in einer Navigationsumgebung
 \end{itemize}
